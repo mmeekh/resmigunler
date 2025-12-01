@@ -1,0 +1,21 @@
+# AI Image Generation Prompts for ResmiGunler.com
+
+## 1. Logo Generation
+**Prompt:**
+"Minimalist vector logo design for a holiday calendar website named 'ResmiGunler'. Concept: combine a calendar page icon with a subtle Turkish flag crescent star or red/white color scheme. Modern, flat design, clean lines, suitable for tech startup. White background. Professional, trustworthy."
+
+## 2. Hero Image (Home Page)
+**Prompt:**
+"High quality 3D illustration, web hero header style. A diverse group of office workers happily planning a vacation, pointing at a large floating holographic calendar. Bright and airy atmosphere. White and red color palette accents. Minimalist background. 16:9 aspect ratio."
+
+## 3. Empty State / Calculator
+**Prompt:**
+"Flat vector illustration of a person relaxing on a beach chair under an umbrella, checking a smartphone. Soft pastel colors, clean lines, plenty of negative space. Represents 'Holiday Planning'. White background."
+
+## 4. Icon Set (SVG style)
+**Prompt:**
+"Set of 5 minimalist line icons, red stroke: 1. Calendar with a checkmark, 2. Calculator, 3. Beach umbrella (holiday), 4. Briefcase (work), 5. Turkish flag. Uniform stroke width, rounded corners."
+
+## 5. Social Media (OpenGraph)
+**Prompt:**
+"Marketing banner for social media sharing. Text overlay area on the right. Left side features a 3D calendar showing a long weekend marked in red. Professional, clean, modern typography aesthetic. 1200x630 resolution."
