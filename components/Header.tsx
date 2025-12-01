@@ -11,6 +11,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
   const navItems = [
     { id: 'home', label: 'Ana Sayfa' },
     { id: 'holidays', label: 'Tüm Tatiller' },
+    { id: 'tatiller', label: 'Tatiller Blogu' },
     { id: 'calculator', label: 'İzin Hesapla' },
     { id: 'about', label: 'Hakkında' },
   ];
