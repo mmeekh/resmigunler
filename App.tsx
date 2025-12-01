@@ -4,14 +4,17 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Calendar from './components/Calendar';
 import LeaveCalculator from './components/LeaveCalculator';
+import ExperienceBar from './components/ExperienceBar';
+import HolidayFilters, { FilterState } from './components/HolidayFilters';
+import FeedbackPanel from './components/FeedbackPanel';
 import { HOLIDAYS } from './constants';
-import { formatDateTR, getHolidayForDate, isWeekend } from './utils';
+import { buildGoogleCalendarLink, buildIcsContent, buildOutlookCalendarLink, formatDateTR, getHolidayForDate, isWeekend } from './utils';
 import { Holiday } from './types';
 
 // Page Components (Internal for simplicity)
 
 // HOME PAGE
-const Home = ({ navigate }: { navigate: (p: string) => void }) => {
+const Home = ({ navigate, liteMode }: { navigate: (p: string) => void; liteMode: boolean }) => {
   // Use today's date formatted as YYYY-MM-DD local time
   const today = new Date();
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -51,12 +54,15 @@ const Home = ({ navigate }: { navigate: (p: string) => void }) => {
       {/* Hero Section */}
       <section className="relative bg-slate-900 text-white py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 z-0">
-             <img 
-               src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=2070" 
-               alt="Tatil Planı" 
-               className="w-full h-full object-cover opacity-30" 
-             />
-             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+             {!liteMode && (
+               <img
+                 src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=2070"
+                 alt="Tatil Planı"
+                 className="w-full h-full object-cover opacity-30"
+                 loading="lazy"
+               />
+             )}
+             <div className={`absolute inset-0 ${liteMode ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-t from-slate-900 to-transparent'}`}></div>
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
@@ -109,7 +115,7 @@ const Home = ({ navigate }: { navigate: (p: string) => void }) => {
                 {activeHoliday ? (
                    <div className="bg-white border border-red-200 shadow-xl rounded-2xl overflow-hidden mb-6 animate-fade-in-up">
                       {/* Image Cap for Sidebar */}
-                      {activeHoliday.imageUrl && (
+                      {activeHoliday.imageUrl && !liteMode && (
                         <div className="h-32 w-full relative">
                           <img 
                             src={activeHoliday.imageUrl} 
@@ -210,43 +216,68 @@ const Home = ({ navigate }: { navigate: (p: string) => void }) => {
 }
 
 // HOLIDAYS LIST PAGE
-const HolidaysList = ({ navigate }: { navigate: (p: string) => void }) => {
-  const [year, setYear] = useState(new Date().getFullYear());
-  
-  const filteredHolidays = HOLIDAYS.filter(h => h.date.startsWith(year.toString()));
+const HolidaysList = ({ navigate, liteMode }: { navigate: (p: string) => void; liteMode: boolean }) => {
+  const [filters, setFilters] = useState<FilterState>({
+    query: '',
+    type: 'all',
+    month: 'all',
+    tag: '',
+    year: new Date().getFullYear(),
+    onlyLong: false,
+  });
+
+  const keywordOptions = Array.from(new Set(HOLIDAYS.flatMap((h) => h.keywords)));
+
+  const filteredHolidays = HOLIDAYS.filter((h) => {
+    if (!h.date.startsWith(filters.year.toString())) return false;
+    if (filters.type !== 'all' && h.type !== filters.type) return false;
+    if (filters.month !== 'all' && !h.date.slice(5, 7).includes(filters.month)) return false;
+    if (filters.tag && !h.keywords.includes(filters.tag)) return false;
+
+    if (filters.onlyLong) {
+      const day = new Date(h.date).getDay();
+      const isNearWeekend = day === 1 || day === 5 || !!h.endDate;
+      if (!isNearWeekend) return false;
+    }
+
+    if (filters.query.trim()) {
+      const q = filters.query.toLowerCase();
+      const matchText = `${h.name} ${h.description} ${h.keywords.join(' ')}`.toLowerCase();
+      if (!matchText.includes(q)) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-slate-800">Tüm Tatiller</h1>
-        <select 
-          value={year} 
-          onChange={(e) => setYear(Number(e.target.value))}
-          className="bg-white border border-slate-300 rounded-lg px-4 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-        >
-          <option value={2023}>2023</option>
-          <option value={2024}>2024</option>
-          <option value={2025}>2025</option>
-          <option value={2026}>2026</option>
-        </select>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div>
+          <p className="text-xs uppercase text-slate-500 font-semibold">Keşfet</p>
+          <h1 className="text-3xl font-bold text-slate-800">Tüm Tatiller</h1>
+          <p className="text-sm text-slate-500">Arama, filtreleme ve etiketlerle sonuçları daraltın.</p>
+        </div>
+        <div className="flex items-center gap-2 text-xs bg-blue-50 border border-blue-100 text-blue-700 px-3 py-2 rounded-full">
+          <span>🔍 Anında filtreleme</span>
+          <span>🧭 {filteredHolidays.length} sonuç</span>
+        </div>
       </div>
+
+      <HolidayFilters filters={filters} onChange={setFilters} keywordOptions={keywordOptions} />
 
       {filteredHolidays.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredHolidays.map(holiday => (
-            <div key={holiday.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full overflow-hidden group">
-              {/* Card Image */}
-              <div className="h-48 overflow-hidden relative">
-                 {holiday.imageUrl ? (
-                   <img 
-                     src={holiday.imageUrl} 
-                     alt={holiday.name} 
-                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" 
+            <div key={holiday.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full overflow-hidden group" role="article" aria-label={holiday.name}>
+              <div className="h-48 overflow-hidden relative bg-gradient-to-br from-red-50 via-white to-slate-50">
+                 {holiday.imageUrl && !liteMode ? (
+                   <img
+                     src={holiday.imageUrl}
+                     alt={holiday.name}
+                     loading="lazy"
+                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                    />
                  ) : (
-                   <div className="w-full h-full bg-slate-200 flex items-center justify-center">
-                      <span className="text-slate-400">Görsel Yok</span>
-                   </div>
+                   <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm">Lite mod: görsel kapalı</div>
                  )}
                  <div className="absolute top-4 left-4">
                     <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm
@@ -261,9 +292,15 @@ const HolidaysList = ({ navigate }: { navigate: (p: string) => void }) => {
                 <span className="text-sm font-semibold text-red-600 mb-2 block">{formatDateTR(holiday.date)}</span>
                 <h3 className="text-xl font-bold text-slate-800 mb-2 leading-tight">{holiday.name}</h3>
                 <p className="text-slate-600 text-sm mb-4 flex-grow line-clamp-3">{holiday.description}</p>
-                <button 
+                <div className="flex flex-wrap gap-2 mb-4 text-xs text-slate-500">
+                  {holiday.keywords.slice(0, 3).map((k) => (
+                    <span key={k} className="px-2 py-1 bg-slate-100 rounded-full">#{k}</span>
+                  ))}
+                </div>
+                <button
                   onClick={() => navigate(`holiday-${holiday.id}`)}
                   className="mt-auto w-full py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 font-medium transition-all"
+                  aria-label={`${holiday.name} detaylarını aç`}
                 >
                   İncele & Fırsatları Gör
                 </button>
@@ -273,7 +310,7 @@ const HolidaysList = ({ navigate }: { navigate: (p: string) => void }) => {
         </div>
       ) : (
         <div className="text-center py-20 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-           <p className="text-slate-500">Bu yıl için kayıtlı tatil bulunamadı.</p>
+           <p className="text-slate-500">Seçili filtrelere uygun tatil bulunamadı.</p>
         </div>
       )}
     </div>
@@ -281,21 +318,49 @@ const HolidaysList = ({ navigate }: { navigate: (p: string) => void }) => {
 };
 
 // HOLIDAY DETAIL PAGE
-const HolidayDetail = ({ id, navigate }: { id: string, navigate: (p: string) => void }) => {
+const HolidayDetail = ({ id, navigate, liteMode }: { id: string, navigate: (p: string) => void; liteMode: boolean }) => {
   const holiday = HOLIDAYS.find(h => h.id === id);
 
   if (!holiday) return <div className="text-center py-20">Tatil bulunamadı.</div>;
+
+  const handleIcsDownload = () => {
+    const content = buildIcsContent(holiday);
+    const blob = new Blob([content], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${holiday.id}.ics`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleShare = async () => {
+    const shareText = `${holiday.name} - ${formatDateTR(holiday.date)}`;
+    const shareUrl = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: holiday.name, text: shareText, url: shareUrl });
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="animate-fade-in">
       {/* Detail Hero */}
       <div className="relative h-[400px] w-full">
-         <img 
-           src={holiday.imageUrl || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1"} 
-           alt={holiday.name} 
-           className="w-full h-full object-cover"
-         />
-         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+         {!liteMode && (
+           <img
+             src={holiday.imageUrl || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1"}
+             alt={holiday.name}
+             loading="lazy"
+             className="w-full h-full object-cover"
+           />
+         )}
+         <div className={`absolute inset-0 ${liteMode ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent'}`}></div>
          <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
             <div className="max-w-4xl mx-auto">
               <button onClick={() => navigate('holidays')} className="text-white/80 hover:text-white mb-4 flex items-center gap-2 transition-colors">
@@ -350,6 +415,42 @@ const HolidayDetail = ({ id, navigate }: { id: string, navigate: (p: string) => 
 
                 {/* Right Column: Links & Tags */}
                 <div className="lg:col-span-1 space-y-6">
+                   <div className="bg-red-50 border border-red-100 rounded-xl p-5">
+                     <h4 className="font-bold text-red-900 mb-3 flex items-center gap-2">
+                       <span aria-hidden>📅</span> Takvime ekle & paylaş
+                     </h4>
+                     <div className="flex flex-col gap-2">
+                       <button
+                         onClick={handleIcsDownload}
+                         className="w-full inline-flex items-center justify-center gap-2 bg-white border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm font-semibold hover:bg-red-100"
+                       >
+                         ICS indir (Apple/Outlook)
+                       </button>
+                       <a
+                         className="w-full inline-flex items-center justify-center gap-2 bg-white border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm font-semibold hover:bg-red-100"
+                         href={buildGoogleCalendarLink(holiday)}
+                         target="_blank"
+                         rel="noreferrer"
+                       >
+                         Google Calendar
+                       </a>
+                       <a
+                         className="w-full inline-flex items-center justify-center gap-2 bg-white border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm font-semibold hover:bg-red-100"
+                         href={buildOutlookCalendarLink(holiday)}
+                         target="_blank"
+                         rel="noreferrer"
+                       >
+                         Outlook / Office 365
+                       </a>
+                       <button
+                         onClick={handleShare}
+                         className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold text-red-800 border border-transparent hover:border-red-200 hover:bg-red-100 rounded-lg py-2"
+                       >
+                         Paylaş (Web Share / WhatsApp)
+                       </button>
+                     </div>
+                   </div>
+
                    {/* Booking Links */}
                    {holiday.bookingLinks && (
                      <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
@@ -414,6 +515,20 @@ const App: React.FC = () => {
   // Simple custom router state
   const [currentPage, setCurrentPage] = useState('home');
   const [currentParams, setCurrentParams] = useState('');
+  const [pwaReady, setPwaReady] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  const detectLowData = () => {
+    const connection = (navigator as any).connection;
+    return connection?.saveData || ['slow-2g', '2g'].includes(connection?.effectiveType);
+  };
+
+  const [liteMode, setLiteMode] = useState<boolean>(() => {
+    const stored = localStorage.getItem('liteMode');
+    if (stored !== null) return stored === 'true';
+    return Boolean(detectLowData());
+  });
+  const [lowDataDetected, setLowDataDetected] = useState<boolean>(detectLowData());
 
   // Handle routing based on simple strings
   const navigate = (page: string) => {
@@ -435,26 +550,69 @@ const App: React.FC = () => {
     document.title = title;
   }, [currentPage]);
 
+  useEffect(() => {
+    localStorage.setItem('liteMode', String(liteMode));
+  }, [liteMode]);
+
+  useEffect(() => {
+    const updateStatus = () => setIsOffline(!navigator.onLine);
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+    return () => {
+      window.removeEventListener('online', updateStatus);
+      window.removeEventListener('offline', updateStatus);
+    };
+  }, []);
+
+  useEffect(() => {
+    const connection = (navigator as any).connection;
+    const handler = () => {
+      const shouldSuggest = detectLowData();
+      setLowDataDetected(Boolean(shouldSuggest));
+      if (shouldSuggest) setLiteMode(true);
+    };
+    handler();
+    connection?.addEventListener?.('change', handler);
+    return () => connection?.removeEventListener?.('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').then(() => setPwaReady(true)).catch(() => setPwaReady(false));
+    }
+  }, []);
+
   const renderPage = () => {
     switch (currentPage) {
-      case 'home': return <Home navigate={navigate} />;
-      case 'holidays': return <HolidaysList navigate={navigate} />;
+      case 'home': return <Home navigate={navigate} liteMode={liteMode} />;
+      case 'holidays': return <HolidaysList navigate={navigate} liteMode={liteMode} />;
       case 'calculator': return (
         <div className="max-w-4xl mx-auto px-4 py-16">
           <LeaveCalculator />
         </div>
       );
-      case 'detail': return <HolidayDetail id={currentParams} navigate={navigate} />;
+      case 'detail': return <HolidayDetail id={currentParams} navigate={navigate} liteMode={liteMode} />;
       case 'about': return <About />;
-      default: return <Home navigate={navigate} />;
+      default: return <Home navigate={navigate} liteMode={liteMode} />;
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-white text-slate-900 px-4 py-2 rounded-md shadow">İçeriğe atla</a>
       <Header onNavigate={navigate} currentPage={currentPage} />
-      <main className="flex-grow">
+      <ExperienceBar
+        liteMode={liteMode}
+        onToggleLite={setLiteMode}
+        lowDataDetected={lowDataDetected}
+        isOffline={isOffline}
+        pwaReady={pwaReady}
+      />
+      <main id="main-content" className="flex-grow">
         {renderPage()}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FeedbackPanel context={currentPage} />
+        </div>
       </main>
       <Footer />
     </div>
