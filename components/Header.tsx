@@ -41,9 +41,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
               <button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
+                aria-current={currentPage === item.id ? 'page' : undefined}
                 className={`text-sm font-medium transition-colors duration-200 ${
-                  currentPage === item.id 
-                    ? 'text-red-600' 
+                  currentPage === item.id
+                    ? 'text-red-600'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -79,6 +80,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
               <button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
+                aria-current={currentPage === item.id ? 'page' : undefined}
                 className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${
                   currentPage === item.id
                     ? 'bg-red-50 text-red-700'

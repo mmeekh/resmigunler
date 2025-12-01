@@ -79,3 +79,58 @@ export const formatDateTR = (dateStr: string): string => {
   };
   return date.toLocaleDateString('tr-TR', options);
 };
+
+// ---- Calendar / ICS Helpers ----
+const toUtcDateString = (dateStr: string): string => {
+  const date = new Date(dateStr + 'T00:00:00');
+  return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+};
+
+const getIcsEnd = (holiday: Holiday): string => {
+  const end = new Date((holiday.endDate || holiday.date) + 'T00:00:00');
+  end.setDate(end.getDate() + 1); // ICS end is exclusive
+  return end.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+};
+
+export const buildIcsContent = (holiday: Holiday): string => {
+  const uid = `${holiday.id}@resmigunler.com`;
+  const dtStart = toUtcDateString(holiday.date);
+  const dtEnd = getIcsEnd(holiday);
+  const summary = holiday.name;
+  const description = holiday.description.replace(/\n/g, ' ');
+
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//ResmiGunler.com//PWA//TR',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${toUtcDateString(new Date().toISOString())}`,
+    `DTSTART:${dtStart}`,
+    `DTEND:${dtEnd}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${description}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\n');
+};
+
+export const buildGoogleCalendarLink = (holiday: Holiday): string => {
+  const start = holiday.date.replace(/-/g, '') + 'T000000Z';
+  const endDate = holiday.endDate || holiday.date;
+  const end = endDate.replace(/-/g, '') + 'T235900Z';
+  const details = encodeURIComponent(holiday.description || holiday.name);
+  const title = encodeURIComponent(holiday.name);
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}&sf=true&output=xml`;
+};
+
+export const buildOutlookCalendarLink = (holiday: Holiday): string => {
+  const start = holiday.date.replace(/-/g, '') + 'T000000Z';
+  const endDate = holiday.endDate || holiday.date;
+  const end = endDate.replace(/-/g, '') + 'T235900Z';
+  const body = encodeURIComponent(holiday.description || holiday.name);
+  const subject = encodeURIComponent(holiday.name);
+  return `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${start}&enddt=${end}&subject=${subject}&body=${body}`;
+};

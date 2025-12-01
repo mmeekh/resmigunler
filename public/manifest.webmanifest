@@ -1,0 +1,18 @@
+{
+  "name": "Resmi Günler - Tatil Planlayıcı",
+  "short_name": "ResmiGünler",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#ef4444",
+  "lang": "tr",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
