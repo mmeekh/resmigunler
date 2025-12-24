@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://resmigunler.com/sitemap.xml
