@@ -135,6 +135,13 @@ const Home = ({ liteMode }: { liteMode: boolean }) => {
                                             <img
                                                 src={activeHoliday.imageUrl}
                                                 alt={activeHoliday.name}
+                                                loading="lazy"
+                                                decoding="async"
+                                                onError={(e) => {
+                                                    const img = e.currentTarget;
+                                                    if (img.src.endsWith('/images/yilbasi.png')) return;
+                                                    img.src = '/images/yilbasi.png';
+                                                }}
                                                 className="w-full h-full object-cover"
                                             />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>

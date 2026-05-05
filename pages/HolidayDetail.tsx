@@ -48,9 +48,15 @@ const HolidayDetail = ({ liteMode }: { liteMode: boolean }) => {
             <div className="relative h-[400px] w-full">
                 {!liteMode && (
                     <img
-                        src={holiday.imageUrl || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1"}
+                        src={holiday.imageUrl || "/images/yilbasi.png"}
                         alt={holiday.name}
                         loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                            const img = e.currentTarget;
+                            if (img.src.endsWith('/images/yilbasi.png')) return;
+                            img.src = '/images/yilbasi.png';
+                        }}
                         className="w-full h-full object-cover"
                     />
                 )}

@@ -76,6 +76,12 @@ const HolidaysList = ({ liteMode }: { liteMode: boolean }) => {
                                         src={holiday.imageUrl}
                                         alt={holiday.name}
                                         loading="lazy"
+                                        decoding="async"
+                                        onError={(e) => {
+                                            const img = e.currentTarget;
+                                            if (img.src.endsWith('/images/yilbasi.png')) return;
+                                            img.src = '/images/yilbasi.png';
+                                        }}
                                         className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                                     />
                                 ) : (

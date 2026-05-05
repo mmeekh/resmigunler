@@ -1,4 +1,4 @@
-const CACHE_NAME = 'resmigunler-cache-v1';
+const CACHE_NAME = 'resmigunler-cache-v2';
 const OFFLINE_URL = '/offline.html';
 const PREFETCH_URLS = ['/', '/index.html', OFFLINE_URL, '/manifest.webmanifest'];
 

@@ -54,7 +54,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'TBMM\'nin açılışı ve Atatürk\'ün çocuklara armağanı.',
     history: '23 Nisan 1920 tarihinde Türkiye Büyük Millet Meclisi açılmıştır.',
     keywords: ['23 nisan', 'çocuk bayramı', 'atatürk', 'anıtkabir', 'ankara'],
-    imageUrl: 'https://images.unsplash.com/photo-1618237936173-1f630018f6d2?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: '/images/23nisan.webp',
     vacationTips: 'Bu özel günde Ankara Anıtkabir ziyareti en anlamlı aktivitedir.',
     activitySuggestions: [
       'Anıtkabir ziyareti',
@@ -88,7 +88,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'Milli mücadelenin başlangıcı.',
     history: 'Mustafa Kemal Atatürk\'ün Samsun\'a çıkarak Kurtuluş Savaşı\'nı başlattığı gün.',
     keywords: ['19 mayıs', 'gençlik bayramı', 'samsun'],
-    imageUrl: 'https://images.unsplash.com/photo-1622303038370-5f2129759d57?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: '/images/19mayis.webp',
     vacationTips: 'Gençlik bayramında Samsun Bandırma Vapuru Müzesi ziyareti yapılabilir.',
     activitySuggestions: [
       'Samsun Bandırma Vapuru gezisi',
@@ -140,7 +140,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'Büyük Taarruz\'un zaferle sonuçlanması.',
     history: '1922 yılında Dumlupınar\'da Atatürk\'ün başkumandanlığında zaferle sonuçlanan Büyük Taarruz.',
     keywords: ['30 ağustos', 'zafer bayramı', 'kütahya', 'afyon'],
-    imageUrl: 'https://images.unsplash.com/photo-1596313463564-98c9f5f0883d?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: '/images/30agustos.webp',
     vacationTips: 'Yaz sezonunun kapanışı. Fethiye Ölüdeniz veya Kabak Koyu\'nda kamp yapmak için harika bir zaman.',
     activitySuggestions: [
       'Dumlupınar Şehitliği ziyareti',
@@ -157,7 +157,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'Cumhuriyetin ilanı.',
     history: '29 Ekim 1923\'te TBMM\'nin Cumhuriyeti ilan etmesi anısına kutlanır.',
     keywords: ['29 ekim', 'cumhuriyet', 'fener alayı'],
-    imageUrl: 'https://images.unsplash.com/photo-1596313463665-d4c2079cc744?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: '/images/29ekim.webp',
     vacationTips: 'Sonbaharın tadını çıkarmak için Yedigöller veya Abant Gölü turu planlayabilirsiniz.',
     activitySuggestions: [
       'Fener alayı yürüyüşlerine katıl',
@@ -176,7 +176,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'Yeni yılın ilk günü. Geçmişin yorgunluğunu geride bırakıp, taze umutlarla 2025 yılına "Merhaba" dediğimiz o büyülü gün!',
     history: 'Miladi takvimin başlangıcı olmasının ötesinde, geçen yılın muhasebesini yapıp yeni hedefler belirlediğimiz, sevdiklerimizle bir araya gelerek iyi dileklerde bulunduğumuz evrensel bir kutlama ve yenilenme günüdür.',
     keywords: ['yılbaşı', '1 ocak', 'kış tatili', 'kayak', 'kapadokya', 'yenilenme'],
-    imageUrl: '/images/yilbasi.png',
+    imageUrl: '/images/yilbasi.webp',
     vacationTips: 'Yılın bu en büyüleyici zamanında, karlar altındaki Kapadokya\'da balonları izlemek veya Uludağ, Kartalkaya, Palandöken gibi kayak merkezlerinde beyazın keyfini çıkarmak ruhunuzu yenileyecektir. Şömine başında sıcak bir atmosfer arayanlar için Sapanca veya Abant bungalovları da harika bir seçenektir.',
     activitySuggestions: [
       'Erciyes veya Palandöken\'de Kayak ve Snowboard Heyecanı',
@@ -202,7 +202,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'Manevi huzurun, birliğin ve beraberliğin zirveye çıktığı; küslerin barıştığı, sofraların şenlendiği 3 günlük Ramazan Bayramı tatili. (Pazar - Salı)',
     history: 'On bir ayın sultanı Ramazan ayının manevi ikliminden sonra gelen, sabrın mükafatı olarak görülen, büyüklerin ziyaret edildiği, çocukların sevindirildiği, paylaşma ve dayanışmanın en yoğun yaşandığı mübarek günlerdir.',
     keywords: ['ramazan bayramı', 'şeker bayramı', 'aile ziyareti', 'gap turu', 'ege tatili'],
-    imageUrl: '/images/ramazan.png',
+    imageUrl: '/images/ramazan.webp',
     vacationTips: 'Baharın en taze zamanına denk gelen bu bayramda, doğanın uyanışına şahit olacağınız Ege köyleri (Şirince, Adatepe) veya Akdeniz\'in sakin koyları (Kaş, Kalkan) huzur dolu bir tatil vadediyor. Ayrıca vizesiz gidilebilen Balkan turları veya Kıbrıs, hem kültür hem eğlence arayanlar için ideal.',
     activitySuggestions: [
       'Güneydoğu Anadolu (GAP) Lezzet ve Kültür Turu',
@@ -227,7 +227,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'Dünya çocuklarına armağan edilen tek bayram! Geleceğimizin teminatı çocuklarımızın neşesi, egemenliğimizin simgesi.',
     history: 'Türkiye Büyük Millet Meclisi\'nin açıldığı, milli egemenliğin ilan edildiği ve Ulu Önder Atatürk\'ün bu kutlu günü dünya çocuklarına armağan ettiği, dünyadaki ilk ve tek çocuk bayramıdır. Bağımsızlığın çocuk masumiyetiyle taçlandığı gündür.',
     keywords: ['23 nisan', 'çocuk bayramı', 'anıtkabir', 'eskişehir', 'tema park'],
-    imageUrl: '/images/23nisan.png',
+    imageUrl: '/images/23nisan.webp',
     vacationTips: 'Baharın tam ortasında, çocuklarınızla birlikte Ankara\'da Anıtkabir ve İlk Meclis ziyareti yaparak milli bilinci pekiştirebilirsiniz. Ardından Eskişehir Sazova Parkı (Bilim Sanat ve Kültür Parkı) veya İstanbul\'daki tema parklar (Vialand, Miniatürk) çocuklara unutulmaz bir gün yaşatacaktır.',
     activitySuggestions: [
       'Anıtkabir ve I. TBMM Müzesi Ziyareti',
@@ -252,7 +252,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'Emeğin, alın terinin, üretimin ve dayanışmanın küresel çapta kutlandığı; baharın coşkusunun işçi bayramıyla birleştiği gün.',
     history: 'Tüm dünyada işçilerin, emekçilerin birlik, dayanışma ve haksızlıklara karşı mücadele günü olarak kutlanan; emeğin, alın terinin ve üretimin kutsallığının hatırlandığı evrensel bir gündür.',
     keywords: ['1 mayıs', 'işçi bayramı', 'kamp', 'doğa yürüyüşü', 'yedigöller'],
-    imageUrl: '/images/1mayis.png',
+    imageUrl: '/images/1mayis.webp',
     vacationTips: 'Perşembe gününe denk gelen bu tatili Cuma ile birleştirerek 4 günlük harika bir bahar kampına dönüştürebilirsiniz. İğneada Longoz Ormanları, Kaz Dağları veya Bolu Yedigöller, doğanın binbir tonunu görmek ve şehrin stresinden arınmak için sizi bekliyor.',
     activitySuggestions: [
       'Doğa ile Baş Başa: Kamp ve Bungalov Tatili',
@@ -277,7 +277,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'Bir milletin uyanışı! Milli Mücadele\'nin ilk adımı, gençliğin enerjisi ve sporun birleştirici gücü.',
     history: 'Gazi Mustafa Kemal Atatürk\'ün Samsun\'a çıkarak Milli Mücadele meşalesini yaktığı, Türkiye Cumhuriyeti\'nin kuruluşuna giden yolda ilk adımın atıldığı; gençliğe, spora ve dinamizme adanmış tarihi bir gündür.',
     keywords: ['19 mayıs', 'gençlik ve spor', 'samsun', 'olympos', 'festival'],
-    imageUrl: '/images/19mayis.png',
+    imageUrl: '/images/19mayis.webp',
     vacationTips: 'Pazartesi gününe denk gelen bu günde, Kurtuluş Savaşı rotası olan Samsun, Amasya ve Sivas\'ı kapsayan bir kültür turu çok anlamlı olacaktır. Alternatif olarak, gençlik festivallerinin başladığı üniversite şehirleri veya Olympos, Kabak Koyu gibi gençlerin tercih ettiği dinamik tatil beldeleri tercih edilebilir.',
     activitySuggestions: [
       'Samsun Bandırma Vapuru ve Milli Mücadele Müzeleri',
@@ -346,7 +346,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'Bağımsızlığımızın mührü! Büyük Taarruz\'un zaferle sonuçlandığı, vatanın kurtarıldığı şanlı gün.',
     history: 'Türk ordusunun Başkomutan Mustafa Kemal Atatürk önderliğinde kazandığı, vatan topraklarının düşman işgalinden tamamen temizlendiği ve bağımsızlığımızın tüm dünyaya ilan edildiği Büyük Zafer\'in yıl dönümüdür.',
     keywords: ['30 ağustos', 'zafer bayramı', 'kaş tatili', 'dumlupınar'],
-    imageUrl: '/images/30agustos.png',
+    imageUrl: '/images/30agustos.webp',
     vacationTips: 'Yazın son demleri! Sezon kapanmadan önceki son deniz tatili fırsatı. Kaş, Kalkan veya Datça gibi deniz suyu sıcaklığının hala yüksek olduğu yerlerde, kalabalıktan uzak, sakin ve keyifli bir hafta sonu geçirebilirsiniz.',
     activitySuggestions: [
       'Dumlupınar ve Kocatepe Zafer Anıtları Ziyareti',
@@ -364,7 +364,7 @@ export const HOLIDAYS: Holiday[] = [
     description: 'En büyük bayramımız! Egemenliğin kayıtsız şartsız millete verildiği, Cumhuriyetin ilan edildiği gurur günü.',
     history: 'Türkiye Büyük Millet Meclisi\'nin 29 Ekim 1923\'te Cumhuriyeti ilan etmesiyle Türk milletinin bağımsızlık mücadelesinin taçlandığı, kul olmaktan çıkıp vatandaş olma onuruna eriştiğimiz; aydınlık yarınların teminatı olan en büyük milli bayramımızdır.',
     keywords: ['29 ekim', 'cumhuriyet bayramı', 'gap turu', 'göbeklitepe', 'anıtkabir'],
-    imageUrl: '/images/29ekim.png',
+    imageUrl: '/images/29ekim.webp',
     vacationTips: 'Sonbaharın romantik atmosferinde Kapadokya, Mardin veya Şanlıurfa turları için yılın en ideal zamanı. Özellikle GAP turu ile tarihin sıfır noktası Göbeklitepe\'yi keşfetmek veya Ankara\'da Anıtkabir\'deki o muazzam atmosferi solumak paha biçilemez.',
     activitySuggestions: [
       'Tarihin Sıfır Noktası: Kapsamlı GAP ve Göbeklitepe Turu',
@@ -390,7 +390,7 @@ export const HOLIDAYS: Holiday[] = [
     type: 'resmi_tatil',
     description: 'Yeni yıl tatili.',
     keywords: ['yılbaşı'],
-    imageUrl: 'https://images.unsplash.com/photo-1482517967863-00e15c9b4499?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: '/images/yilbasi.webp',
     vacationTips: 'Yeni yıla karlar altında girmek için Kartalkaya veya Uludağ otellerine bakın.',
     bookingLinks: COMMON_LINKS
   },
@@ -413,7 +413,7 @@ export const HOLIDAYS: Holiday[] = [
     type: 'resmi_tatil',
     description: '23 Nisan Çocuk Bayramı.',
     keywords: ['23 nisan'],
-    imageUrl: 'https://images.unsplash.com/photo-1596313463567-c6b70a7904e5?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: '/images/23nisan.webp',
     vacationTips: 'Çocuklarla birlikte Anıtkabir ziyareti planlayın.',
     bookingLinks: COMMON_LINKS
   },
@@ -435,7 +435,7 @@ export const HOLIDAYS: Holiday[] = [
     type: 'resmi_tatil',
     description: '19 Mayıs Gençlik Bayramı.',
     keywords: ['19 mayıs'],
-    imageUrl: 'https://images.unsplash.com/photo-1622303038370-5f2129759d57?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: '/images/19mayis.webp',
     vacationTips: 'Gençlik festivallerine göz atın.',
     bookingLinks: COMMON_LINKS
   },
@@ -469,7 +469,7 @@ export const HOLIDAYS: Holiday[] = [
     type: 'resmi_tatil',
     description: '30 Ağustos.',
     keywords: ['30 ağustos'],
-    imageUrl: 'https://images.unsplash.com/photo-1596313463564-98c9f5f0883d?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: '/images/30agustos.webp',
     vacationTips: 'Zafer Bayramı coşkusunu Ankara veya Dumlupınar\'da yaşayın.',
     bookingLinks: COMMON_LINKS
   },
@@ -480,7 +480,7 @@ export const HOLIDAYS: Holiday[] = [
     type: 'resmi_tatil',
     description: '29 Ekim.',
     keywords: ['29 ekim'],
-    imageUrl: 'https://images.unsplash.com/photo-1596313463665-d4c2079cc744?auto=format&fit=crop&q=80&w=1000',
+    imageUrl: '/images/29ekim.webp',
     vacationTips: 'Cumhuriyet coşkusunu en iyi hissedebileceğiniz yer Ankara\'dır.',
     bookingLinks: COMMON_LINKS
   },
