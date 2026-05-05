@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HOLIDAYS } from '../constants';
@@ -9,6 +9,40 @@ const HolidayDetail = ({ liteMode }: { liteMode: boolean }) => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const holiday = HOLIDAYS.find(h => h.id === id);
+
+    // Schema.org Event JSON-LD for SEO + AI Overviews citability.
+    useEffect(() => {
+        if (!holiday) return;
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.text = JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Event',
+            name: holiday.name,
+            startDate: holiday.date,
+            endDate: holiday.endDate || holiday.date,
+            eventAttendanceMode: 'https://schema.org/MixedEventAttendanceMode',
+            eventStatus: 'https://schema.org/EventScheduled',
+            location: {
+                '@type': 'Country',
+                name: 'Türkiye',
+                address: { '@type': 'PostalAddress', addressCountry: 'TR' },
+            },
+            description: holiday.description,
+            image: holiday.imageUrl ? `https://resmigunler.com${holiday.imageUrl.startsWith('/') ? '' : '/'}${holiday.imageUrl}` : undefined,
+            organizer: {
+                '@type': 'GovernmentOrganization',
+                name: 'Türkiye Cumhuriyeti',
+                url: 'https://www.turkiye.gov.tr/',
+            },
+            isAccessibleForFree: true,
+            inLanguage: 'tr-TR',
+        });
+        document.head.appendChild(script);
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, [holiday]);
 
     if (!holiday) return <div className="text-center py-20">Tatil bulunamadı.</div>;
 

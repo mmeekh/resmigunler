@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import HolidayFilters, { FilterState } from '../components/HolidayFilters';
-import { HOLIDAYS } from '../constants';
+import { useHolidays } from '../lib/holidays';
 import { formatDateTR } from '../utils';
 
 const HolidaysList = ({ liteMode }: { liteMode: boolean }) => {
@@ -17,10 +17,10 @@ const HolidaysList = ({ liteMode }: { liteMode: boolean }) => {
         onlyLong: false,
     });
 
-    const keywordOptions = Array.from(new Set(HOLIDAYS.flatMap((h) => h.keywords)));
+    const { data: holidays, loading, source } = useHolidays(filters.year);
+    const keywordOptions = Array.from(new Set(holidays.flatMap((h) => h.keywords)));
 
-    const filteredHolidays = HOLIDAYS.filter((h) => {
-        if (!h.date.startsWith(filters.year.toString())) return false;
+    const filteredHolidays = holidays.filter((h) => {
         if (filters.type !== 'all' && h.type !== filters.type) return false;
         if (filters.month !== 'all' && !h.date.slice(5, 7).includes(filters.month)) return false;
         if (filters.tag && !h.keywords.includes(filters.tag)) return false;
@@ -55,6 +55,16 @@ const HolidaysList = ({ liteMode }: { liteMode: boolean }) => {
                 <div className="flex items-center gap-2 text-xs bg-blue-50 border border-blue-100 text-blue-700 px-3 py-2 rounded-full">
                     <span>🔍 Anında filtreleme</span>
                     <span>🧭 {filteredHolidays.length} sonuç</span>
+                    {loading && <span className="text-blue-500">⏳ güncelleniyor</span>}
+                    {!loading && source === 'api' && (
+                        <span className="text-green-600" title="Veriler canlı API'den çekildi">🟢 canlı</span>
+                    )}
+                    {!loading && source === 'cache' && (
+                        <span className="text-amber-600" title="Yerel önbellekten">📦 önbellek</span>
+                    )}
+                    {!loading && source === 'static' && (
+                        <span className="text-slate-500" title="Yedek statik veri">📄 yedek</span>
+                    )}
                 </div>
             </div>
 

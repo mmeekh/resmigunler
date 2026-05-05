@@ -42,7 +42,7 @@ const HolidayFilters: React.FC<HolidayFiltersProps> = ({ filters, onChange, keyw
             onChange={(e) => setFilter('year', Number(e.target.value))}
             className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
           >
-            {[2023, 2024, 2025, 2026].map((y) => (
+            {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
