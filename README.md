@@ -4,6 +4,12 @@
 
 [resmigunler.com](https://resmigunler.com) is a free, public-service web app for Turkey's official holiday calendar with a smart leave calculator, AI-powered suggestions, and offline PWA support.
 
+<p align="center">
+  <a href="https://resmigunler.com">
+    <img src="docs/screenshot.webp" alt="ResmiGunler.com — public holiday planner for Turkey" width="900">
+  </a>
+</p>
+
 ## Features
 
 - **Full Holiday Calendar** — all official Turkish public holidays for 2024/2025 with individual detail pages
