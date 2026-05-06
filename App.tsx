@@ -12,6 +12,7 @@ import HolidayDetail from './pages/HolidayDetail';
 import TatillerBlog from './pages/TatillerBlog';
 import LeaveCalculatorPage from './pages/LeaveCalculatorPage';
 import About from './pages/About';
+import YearLanding from './pages/YearLanding';
 
 // SEO & Title Updater
 const TitleUpdater = () => {
@@ -45,6 +46,7 @@ const AnimatedRoutes = ({ liteMode }: { liteMode: boolean }) => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home liteMode={liteMode} />} />
         <Route path="/holidays" element={<HolidaysList liteMode={liteMode} />} />
+        <Route path="/tatiller/:year" element={<YearLanding />} />
         <Route path="/holiday/:id" element={<HolidayDetail liteMode={liteMode} />} />
         <Route path="/blog" element={<TatillerBlog />} />
         <Route path="/calculator" element={<LeaveCalculatorPage />} />

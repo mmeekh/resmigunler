@@ -1,40 +1,49 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
+import { listComments, createComment, type ApiComment } from '../lib/holidays';
 
 const FORM_ENDPOINT = 'https://formspree.io/f/mrbnjywa';
 
-// Profanity filter - Turkish bad words
 const PROFANITY_LIST = [
-  'amk', 'amq', 'aq', 'orospu', 'oç', 'piç', 'sik', 'yarrak', 'göt', 'am',
+  'amk', 'amq', 'aq', 'orospu', 'oç', 'piç', 'sik', 'yarrak', 'göt',
   'amcık', 'amına', 'ananı', 'sikerim', 'sikeyim', 'siktir', 'pezevenk',
-  'kahpe', 'sürtük', 'fahişe', 'ibne', 'puşt', 'götveren', 'amcuk', 'amk',
-  'mk', 'mq', 'aq', 'sg', 'salak', 'gerizekalı', 'mal', 'aptal'
+  'kahpe', 'sürtük', 'fahişe', 'ibne', 'puşt', 'götveren', 'amcuk',
 ];
 
 const containsProfanity = (text: string): boolean => {
-  const lowerText = text.toLowerCase()
-    .replace(/[^a-zçğıöşü0-9\s]/gi, '') // Remove special chars
-    .replace(/\s+/g, ' '); // Normalize spaces
-
-  return PROFANITY_LIST.some(word => {
-    const regex = new RegExp(`\\b${ word } \\b | ${ word } `, 'i');
-    return regex.test(lowerText);
-  });
+  const lower = text.toLowerCase()
+    .replace(/[^a-zçğıöşü0-9\s]/gi, '')
+    .replace(/\s+/g, ' ');
+  return PROFANITY_LIST.some((word) => new RegExp(`\\b${word}\\b`, 'i').test(lower));
 };
 
-interface Comment {
+interface DisplayComment {
   id: number;
   name: string;
   date: string;
   content: string;
-  likes: number;
-  dislikes: number;
-  replies?: Comment[];
+  replies: DisplayComment[];
 }
 
 interface FeedbackPanelProps {
   context: string;
 }
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('tr-TR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+const toDisplay = (c: ApiComment): DisplayComment => ({
+  id: c.id,
+  name: c.name,
+  date: formatDate(c.created_at),
+  content: c.message,
+  replies: (c.replies ?? []).map(toDisplay),
+});
 
 const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
   const [name, setName] = useState('');
@@ -42,8 +51,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
   const [turnstileToken, setTurnstileToken] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
-  // Comments State
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<DisplayComment[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
@@ -56,103 +64,36 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
   const turnstileRef = useRef<HTMLDivElement>(null);
   const replyTurnstileRef = useRef<HTMLDivElement>(null);
 
-  // Fetch comments from Supabase
-  const fetchComments = async () => {
+  const refresh = async () => {
     try {
       setLoading(true);
-      
-      // Fetch parent comments
-      const { data: parentComments, error: parentError } = await supabase
-        .from('comments')
-        .select('*')
-        .is('parent_id', null)
-        .order('created_at', { ascending: false });
-
-      if (parentError) throw parentError;
-
-      // Fetch all replies
-      const { data: allReplies, error: repliesError } = await supabase
-        .from('comments')
-        .select('*')
-        .not('parent_id', 'is', null)
-        .order('created_at', { ascending: true });
-
-      if (repliesError) throw repliesError;
-
-      // Group replies by parent_id
-      const repliesMap: { [key: number]: any[] } = {};
-      allReplies?.forEach(reply => {
-        if (!repliesMap[reply.parent_id]) {
-          repliesMap[reply.parent_id] = [];
-        }
-        repliesMap[reply.parent_id].push({
-          id: reply.id,
-          name: reply.name,
-          date: new Date(reply.created_at).toLocaleDateString('tr-TR', { 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric', 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }),
-          content: reply.message,
-          likes: 0,
-          dislikes: 0
-        });
-      });
-
-      // Combine parents with their replies
-      const formattedComments = parentComments?.map(comment => ({
-        id: comment.id,
-        name: comment.name,
-        date: new Date(comment.created_at).toLocaleDateString('tr-TR', { 
-          day: 'numeric', 
-          month: 'long', 
-          year: 'numeric', 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        }),
-        content: comment.message,
-        likes: 0,
-        dislikes: 0,
-        replies: repliesMap[comment.id] || []
-      })) || [];
-
-      setComments(formattedComments);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
+      const data = await listComments(context);
+      setComments(data.map(toDisplay));
+    } catch (err) {
+      console.error('Yorumlar alınamadı:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchComments();
-  }, []);
-  // Sorting: Newest first logic usually implies ID descending for mock data
-  // But let's assume MOCK_COMMENTS is already sorted or we sort it.
-  const sortedComments = [...comments].sort((a, b) => b.id - a.id);
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [context]);
 
-  // Pagination Logic (comments already sorted from DB)
   const totalPages = Math.ceil(comments.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentComments = comments.slice(indexOfFirstItem, indexOfLastItem);
 
   const goToPage = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
   const toggleReplies = (commentId: number) => {
-    const newExpanded = new Set(expandedReplies);
-    if (newExpanded.has(commentId)) {
-      newExpanded.delete(commentId);
-    } else {
-      newExpanded.add(commentId);
-    }
-    setExpandedReplies(newExpanded);
+    const next = new Set(expandedReplies);
+    next.has(commentId) ? next.delete(commentId) : next.add(commentId);
+    setExpandedReplies(next);
   };
 
   useEffect(() => {
@@ -160,9 +101,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
       try {
         (window as any).turnstile.render(turnstileRef.current, {
           sitekey: '0x4AAAAAACGfU51g1lZBAfSN',
-          callback: (token: string) => {
-            setTurnstileToken(token);
-          },
+          callback: (token: string) => setTurnstileToken(token),
         });
       } catch (e) {
         console.error('Turnstile render error:', e);
@@ -175,9 +114,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
       try {
         (window as any).turnstile.render(replyTurnstileRef.current, {
           sitekey: '0x4AAAAAACGfU51g1lZBAfSN',
-          callback: (token: string) => {
-            setReplyTurnstileToken(token);
-          },
+          callback: (token: string) => setReplyTurnstileToken(token),
         });
       } catch (e) {
         console.error('Reply Turnstile render error:', e);
@@ -185,65 +122,44 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
     }
   }, [replyingTo]);
 
+  const fireFormspree = async (payload: { name: string; message: string; context: string; subject: string; token: string }) => {
+    try {
+      const fd = new FormData();
+      fd.append('name', payload.name);
+      fd.append('message', payload.message);
+      fd.append('context', payload.context);
+      fd.append('cf-turnstile-response', payload.token);
+      fd.append('_subject', payload.subject);
+      await fetch(FORM_ENDPOINT, { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
+    } catch {
+      /* notification is best-effort; never block UX */
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!turnstileToken) {
       alert('Lütfen robot olmadığınızı doğrulayın.');
       return;
     }
-
-    // Check for profanity
     if (containsProfanity(message) || containsProfanity(name)) {
       alert('Yorumunuz uygunsuz içerik barındırıyor. Lütfen düzenleyip tekrar deneyin.');
       return;
     }
-
     setStatus('sending');
     try {
-      // 1. Send to Formspree (for notification)
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('message', message);
-      formData.append('context', `Yorum: ${ context } `);
-      formData.append('cf-turnstile-response', turnstileToken);
-      formData.append('_subject', `${ name } kişisinden yeni yorum`);
-
-      await fetch(FORM_ENDPOINT, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-
-      // 2. Save to Supabase
-      const { error } = await supabase
-        .from('comments')
-        .insert([
-          {
-            name: name,
-            message: message,
-            context: context,
-            parent_id: null
-          }
-        ]);
-
-      if (error) throw error;
-
-      // 3. Refresh comments list
-      await fetchComments();
-      
+      await createComment({ name, message, context, parent_id: null, turnstile_token: turnstileToken });
+      fireFormspree({ name, message, context: `Yorum: ${context}`, subject: `${name} kişisinden yeni yorum`, token: turnstileToken });
+      await refresh();
       setStatus('sent');
       setMessage('');
       setName('');
       setTurnstileToken('');
-      if ((window as any).turnstile) {
-        (window as any).turnstile.reset();
-      }
+      if ((window as any).turnstile) (window as any).turnstile.reset();
     } catch (err: any) {
       console.error(err);
       setStatus('error');
-      alert(`Hata: ${ err.message || 'Bir sorun oluştu' } `);
+      alert(`Hata: ${err.message || 'Bir sorun oluştu'}`);
     }
   };
 
@@ -252,62 +168,37 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
       alert('Lütfen robot olmadığınızı doğrulayın.');
       return;
     }
-
-    // Check for profanity in reply
     if (containsProfanity(replyMessage) || containsProfanity(replyName)) {
       alert('Cevabınız uygunsuz içerik barındırıyor. Lütfen düzenleyip tekrar deneyin.');
       return;
     }
-
     try {
-      // 1. Send to Formspree (for notification)
-      const formData = new FormData();
-      formData.append('name', replyName);
-      formData.append('message', replyMessage);
-      formData.append('context', `Cevap(Parent ID: ${ parentId }): ${ context } `);
-      formData.append('cf-turnstile-response', replyTurnstileToken);
-      formData.append('_subject', `${ replyName } kişisinden yeni cevap`);
-
-      await fetch(FORM_ENDPOINT, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json'
-        }
+      await createComment({
+        name: replyName,
+        message: replyMessage,
+        context,
+        parent_id: parentId,
+        turnstile_token: replyTurnstileToken,
       });
-
-      // 2. Save to Supabase
-      const { error } = await supabase
-        .from('comments')
-        .insert([
-          {
-            name: replyName,
-            message: replyMessage,
-            context: context,
-            parent_id: parentId
-          }
-        ]);
-
-      if (error) throw error;
-
-      // 3. Refresh comments list
-      await fetchComments();
-      
-      // 4. Auto-expand the replies for this comment
-      const newExpanded = new Set(expandedReplies);
-      newExpanded.add(parentId);
-      setExpandedReplies(newExpanded);
-
+      fireFormspree({
+        name: replyName,
+        message: replyMessage,
+        context: `Cevap (Parent ID: ${parentId}): ${context}`,
+        subject: `${replyName} kişisinden yeni cevap`,
+        token: replyTurnstileToken,
+      });
+      await refresh();
+      const next = new Set(expandedReplies);
+      next.add(parentId);
+      setExpandedReplies(next);
       setReplyName('');
       setReplyMessage('');
       setReplyTurnstileToken('');
       setReplyingTo(null);
-      if ((window as any).turnstile) {
-        (window as any).turnstile.reset();
-      }
+      if ((window as any).turnstile) (window as any).turnstile.reset();
     } catch (err: any) {
       console.error(err);
-      alert(`Hata: ${ err.message || 'Bir sorun oluştu' } `);
+      alert(`Hata: ${err.message || 'Bir sorun oluştu'}`);
     }
   };
 
@@ -335,8 +226,6 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
 
   return (
     <section className="bg-white border border-slate-200 rounded-2xl shadow-sm mt-12 mb-12 overflow-hidden" aria-labelledby="comments-title">
-
-      {/* Form Section */}
       <div className="p-6 md:p-8 border-b border-slate-100">
         <div className="mb-6">
           <h3 id="comments-title" className="text-2xl font-bold text-slate-900 mb-2">Yorumlar ({comments.length})</h3>
@@ -388,9 +277,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
         </form>
       </div>
 
-      {/* Comments List Section */}
       <div className="bg-slate-50 p-6 md:p-8">
-        
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -409,7 +296,6 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
                 <div key={comment.id} className="bg-white rounded-xl border border-slate-200 shadow-sm">
                   <div className="p-5">
                     <div className="flex gap-3">
-                      {/* Avatar placeholder */}
                       <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white font-bold text-sm">
                         {comment.name.charAt(0).toUpperCase()}
                       </div>
@@ -433,7 +319,6 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
                           </button>
                         </div>
 
-                        {/* Reply Form - Inline */}
                         {replyingTo === comment.id && (
                           <div className="mt-4 space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-200">
                             <input
@@ -476,7 +361,6 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
                     </div>
                   </div>
 
-                  {/* Replies Toggle & List */}
                   {comment.replies && comment.replies.length > 0 && (
                     <div className="border-t border-slate-100">
                       <button
@@ -484,7 +368,7 @@ const FeedbackPanel: React.FC<FeedbackPanelProps> = ({ context }) => {
                         className="w-full px-5 py-3 flex items-center gap-2 text-sm font-semibold text-blue-600 hover:bg-slate-50 transition-colors"
                       >
                         <svg
-                          className={`w - 4 h - 4 transition - transform ${ expandedReplies.has(comment.id) ? 'rotate-180' : '' } `}
+                          className={`w-4 h-4 transition-transform ${expandedReplies.has(comment.id) ? 'rotate-180' : ''}`}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"

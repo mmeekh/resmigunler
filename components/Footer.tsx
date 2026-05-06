@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
@@ -11,12 +12,17 @@ const Footer: React.FC = () => {
           </p>
         </div>
         <div>
-          <h4 className="text-white font-medium mb-4">Hızlı Bağlantılar</h4>
+          <h4 className="text-white font-medium mb-4">Yıllık Tatil Rehberleri</h4>
           <ul className="space-y-2 text-sm">
-            <li><button className="hover:text-red-400">2024 Resmi Tatiller</button></li>
-            <li><button className="hover:text-red-400">2025 Resmi Tatiller</button></li>
-            <li><button className="hover:text-red-400">İzin Hesaplama</button></li>
-            <li><button className="hover:text-red-400">Sitemap</button></li>
+            {[2025, 2026, 2027, 2028, 2029, 2030].map((y) => (
+              <li key={y}>
+                <Link to={`/tatiller/${y}`} className="hover:text-red-400">
+                  {y} Resmi Tatiller
+                </Link>
+              </li>
+            ))}
+            <li><Link to="/calculator" className="hover:text-red-400">İzin Hesaplama</Link></li>
+            <li><a href="/sitemap.xml" className="hover:text-red-400">Sitemap</a></li>
           </ul>
         </div>
         <div>

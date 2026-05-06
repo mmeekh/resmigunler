@@ -139,6 +139,50 @@ export function useHolidays(year: number): UseHolidaysResult {
  * One-shot fetch for upcoming holidays in the next N days.
  * Used by the home-page hero / countdown widget.
  */
+// ---------- Comments (replaces Supabase) -----------------------------------
+
+export interface ApiComment {
+  id: number;
+  parent_id: number | null;
+  name: string;
+  message: string;
+  context: string;
+  created_at: string;
+  replies?: ApiComment[];
+}
+
+export async function listComments(context: string): Promise<ApiComment[]> {
+  const r = await fetch(
+    `${API_BASE}/v1/comments?context=${encodeURIComponent(context)}`,
+    { mode: 'cors' }
+  );
+  if (!r.ok) throw new Error(`API ${r.status}`);
+  const json = await r.json();
+  return json.data as ApiComment[];
+}
+
+export async function createComment(payload: {
+  name: string;
+  message: string;
+  context: string;
+  parent_id?: number | null;
+  turnstile_token?: string;
+}): Promise<ApiComment> {
+  const r = await fetch(`${API_BASE}/v1/comments`, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) {
+    const txt = await r.text();
+    throw new Error(`API ${r.status}: ${txt}`);
+  }
+  return r.json();
+}
+
+// ---------- Upcoming holidays ---------------------------------------------
+
 export async function fetchUpcoming(days: number = 90): Promise<Array<Holiday & { daysUntil: number }>> {
   try {
     const r = await fetch(`${API_BASE}/v1/holidays/upcoming?days=${days}`, { mode: 'cors' });

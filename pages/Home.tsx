@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'; // Adding animation
 import Calendar from '../components/Calendar';
 import LeaveCalculator from '../components/LeaveCalculator';
+import UpcomingCountdown from '../components/UpcomingCountdown';
 import { HOLIDAYS } from '../constants';
 import { formatDateTR, getHolidayForDate } from '../utils';
 import { Holiday } from '../types';
@@ -95,6 +96,9 @@ const Home = ({ liteMode }: { liteMode: boolean }) => {
                     </motion.button>
                 </div>
             </section>
+
+            {/* Live countdown to the next upcoming holiday (refreshed from /v1/holidays/upcoming every 5 min). */}
+            <UpcomingCountdown />
 
             {/* Calendar Section */}
             <section className="py-16 bg-white">
