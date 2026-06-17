@@ -1,0 +1,19 @@
+services:
+  resmigunler-api:
+    build: ./api
+    container_name: resmigunler-api
+    restart: unless-stopped
+    volumes:
+      - resmigunler_data:/data
+    networks:
+      - web
+
+volumes:
+  # Mevcut yorum DB'sini koru: kök compose'un oluşturduğu volume'e dışarıdan bağlan.
+  resmigunler_data:
+    external: true
+    name: root_resmigunler_data
+
+networks:
+  web:
+    external: true
